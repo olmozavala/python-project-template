@@ -1,0 +1,34 @@
+name: Unit Testing
+
+# Controls when the workflow will run
+on:
+  # Triggers on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  python-test:
+    name: 'test'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.9"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Micromamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: tests/environment.yml
+          environment-name: myenv
+      - name: Python Syntax Checker
+        uses: cclauss/Find-Python-syntax-errors-action@v0.2.0
+      - name: Unit testing
+        shell: bash -l {0}
+        run: |
+              pytest tests/*.py
